@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="WEIST: Di Kota Lama — Interactive Story Game. Resmi berdasarkan novel WEIST oleh Bayang & Flowers. Sponsor: ZKA AGENCY. Tersedia dalam Bahasa Indonesia, English, 日本語.">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0d0202">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data: https://image.qwenlm.ai https://cdn.phototourl.com; media-src https://www.image2url.com; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>WEIST: Di Kota Lama — Interactive Story Game</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/permanent-marker@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/special-elite@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/caveat@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-jp@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/yuji-shuku@5/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/zen-kurenaido@5/index.css">
+<style>
+:root{
+  --blood:#8f1010; --crimson:#d21f1f; --crimson2:#ff5040; --paper:#dcc9a6; --ink:#241a12;
+  --text:#f2e4c9; --muted:#b99f83; --gold:#d8b06a;
+  --f-title:'Permanent Marker',cursive; --f-type:'Special Elite',monospace; --f-hand:'Caveat',cursive;
+  --torn:polygon(0% 6%,4% 0%,12% 4%,22% 0%,32% 4%,44% 0%,56% 4%,68% 0%,80% 4%,92% 0%,100% 6%,98% 30%,100% 55%,98% 80%,100% 96%,90% 100%,76% 97%,60% 100%,44% 97%,28% 100%,14% 97%,4% 100%,0% 94%,2% 70%,0% 45%,2% 22%);
+}
+body.ja{--f-title:'Yuji Shuku',serif;--f-type:'Noto Sans JP',sans-serif;--f-hand:'Zen Kurenaido',cursive}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:#050101;color:var(--text);font-family:var(--f-type);overflow:hidden;user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block}
+::selection{background:var(--blood);color:#fff}
+
+#game{position:fixed;inset:0;overflow:hidden;background:#050101}
+.bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;transform:scale(1.02);z-index:1}
+.bgimg.show{opacity:1}
+#bgShade{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(5,1,1,.55) 0%,transparent 30%,transparent 62%,rgba(5,1,1,.72) 100%);pointer-events:none}
+#charLayer{position:absolute;inset:0;z-index:3;pointer-events:none}
+.cslot{position:absolute;bottom:0;height:92%;display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .6s ease,filter .5s ease}
+.cslot.on{opacity:1}
+.cslot.l{left:3%}.cslot.r{right:3%}.cslot.c{left:50%;transform:translateX(-50%)}
+.cslot img{height:100%;width:auto;max-width:36vw;object-fit:contain;filter:drop-shadow(0 12px 34px rgba(0,0,0,.75));transition:filter .4s}
+.cslot.dim img{filter:brightness(.5) saturate(.75) drop-shadow(0 12px 34px rgba(0,0,0,.75))}
+.cslot.active img{filter:brightness(1.06) drop-shadow(0 0 26px rgba(210,31,31,.35))}
+.cslot.ghost img{opacity:.85;filter:brightness(.62) contrast(1.25) saturate(.7) drop-shadow(0 0 30px rgba(143,16,16,.6))}
+#rainCv{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.28;mix-blend-mode:screen}
+#vign{position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.62) 100%)}
+
+#hud{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.7rem .9rem;background:linear-gradient(180deg,rgba(5,1,1,.85),transparent);opacity:0;pointer-events:none;transition:opacity .6s}
+#hud.on{opacity:1;pointer-events:auto}
+#hudChap{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border:1px solid rgba(210,31,31,.5);background:rgba(13,2,2,.7);padding:.35rem .8rem;max-width:44vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hudBtns{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end}
+.hbtn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(210,31,31,.6);background:rgba(16,3,3,.8);color:var(--crimson2);font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:.25s;position:relative}
+.hbtn:hover{background:var(--blood);color:#fff;transform:translateY(-2px)}
+.hbtn.on{background:var(--crimson);color:#fff;box-shadow:0 0 14px rgba(210,31,31,.7)}
+.hbtn .badge{position:absolute;top:-5px;right:-5px;background:var(--paper);color:var(--ink);font-size:.58rem;font-weight:bold;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+#btnLang{font-size:.68rem;letter-spacing:.06em;font-weight:bold}
+
+#dialogBox{position:absolute;left:50%;transform:translateX(-50%) translateY(30px);bottom:4.5%;width:min(94%,920px);z-index:10;background:rgba(16,3,3,.93);border:1px solid rgba(210,31,31,.55);box-shadow:0 18px 50px rgba(0,0,0,.8),inset 0 0 40px rgba(143,16,16,.15);padding:1.5rem 1.4rem 1.15rem;min-height:132px;opacity:0;pointer-events:none;transition:opacity .5s,transform .5s;backdrop-filter:blur(6px)}
+#dialogBox.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#namePlate{position:absolute;top:-15px;left:16px;background:var(--blood);color:#fff;padding:.3rem 1rem;font-size:.82rem;letter-spacing:.14em;transform:rotate(-1.5deg);box-shadow:0 6px 16px rgba(0,0,0,.6);border:1px solid var(--crimson)}
+#dText{font-size:clamp(.98rem,2.3vw,1.16rem);line-height:1.75;color:var(--text);min-height:3.4em;white-space:pre-wrap}
+#dText.nar{color:#cdb493;font-style:italic}
+body.ja #dText.nar{font-style:normal}
+#nextInd{position:absolute;right:14px;bottom:8px;color:var(--crimson2);font-size:.9rem;opacity:0;animation:nbounce 1s infinite}
+#nextInd.on{opacity:1}
+@keyframes nbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+#choiceBox{position:absolute;inset:0;z-index:12;display:none;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;background:rgba(3,0,0,.45);padding:1rem;overflow-y:auto}
+#choiceBox.on{display:flex}
+#choiceBox .qtitle{font-family:var(--f-hand);font-size:1.6rem;color:var(--paper);margin-bottom:.4rem;text-shadow:0 2px 10px #000}
+.cbtn{background:var(--paper);color:var(--ink);font-family:var(--f-hand);font-size:clamp(1.12rem,2.6vw,1.45rem);line-height:1.35;padding:.75rem 1.6rem;max-width:min(560px,88vw);clip-path:var(--torn);box-shadow:0 12px 30px rgba(0,0,0,.7);transition:transform .25s,background .25s;animation:cin .5s ease both}
+body.ja .cbtn{font-size:clamp(.98rem,2.4vw,1.2rem)}
+.cbtn:hover{transform:scale(1.05) rotate(-1deg);background:#efe0c0}
+@keyframes cin{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+#chapCard{position:absolute;inset:0;z-index:20;background:rgba(4,0,0,.96);display:none;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center;padding:1rem}
+#chapCard.on{display:flex}
+#chapCard .t{font-family:var(--f-title);font-size:clamp(2rem,7vw,4.4rem);color:var(--crimson2);text-shadow:0 0 34px rgba(210,31,31,.6),4px 4px 0 #4d0808;animation:stampIn .55s cubic-bezier(.2,3,.4,1) both}
+#chapCard .s{font-family:var(--f-hand);font-size:clamp(1.15rem,3vw,1.8rem);color:var(--paper);animation:cin .8s .25s ease both}
+@keyframes stampIn{from{transform:scale(2.6) rotate(-6deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+#toast{position:absolute;top:64px;right:14px;z-index:15;background:var(--paper);color:var(--ink);width:260px;padding:.8rem .9rem;clip-path:var(--torn);box-shadow:0 14px 34px rgba(0,0,0,.75);transform:translateX(130%);transition:transform .55s cubic-bezier(.2,1.4,.4,1);display:flex;gap:.7rem;align-items:center}
+#toast.on{transform:none}
+#toast .ic{font-size:2rem;filter:drop-shadow(0 0 8px rgba(143,16,16,.6))}
+#toast .lb{font-weight:bold;font-size:.88rem;line-height:1.25}
+#toast .tg{font-size:.58rem;letter-spacing:.24em;color:var(--blood);text-transform:uppercase;font-weight:bold}
+
+#evDrawer{position:fixed;top:0;right:0;height:100%;width:min(360px,92vw);z-index:30;background:rgba(16,3,3,.97);border-left:2px solid rgba(210,31,31,.5);transform:translateX(105%);transition:transform .45s ease;padding:1.2rem 1.1rem;overflow-y:auto;box-shadow:-20px 0 60px rgba(0,0,0,.8)}
+#evDrawer.open{transform:none}
+#evDrawer h3{font-family:var(--f-title);color:var(--crimson2);font-size:1.4rem;margin-bottom:.2rem}
+#evDrawer .sub{font-size:.68rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:1rem}
+.evItem{display:flex;gap:.8rem;align-items:flex-start;background:rgba(220,201,166,.08);border:1px dashed rgba(210,31,31,.4);padding:.7rem .8rem;margin-bottom:.7rem}
+.evItem .ic{font-size:1.7rem}
+.evItem .lb{font-weight:bold;font-size:.88rem;color:var(--text)}
+.evItem .ds{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:.15rem}
+.evItem.locked{opacity:.45;filter:grayscale(1)}
+#evClose{position:absolute;top:10px;right:12px;color:var(--crimson2);font-size:1.1rem}
+.caseBox{margin-top:1rem;border:2px double rgba(210,31,31,.6);padding:.8rem;font-size:.72rem;line-height:1.8;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.caseBox b{color:var(--crimson2)}
+
+#endScreen{position:absolute;inset:0;z-index:40;background:radial-gradient(circle at 50% 40%,#200606,#050101 75%);display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.05rem;text-align:center;padding:1.4rem;overflow-y:auto}
+#endScreen.on{display:flex}
+#endStamp{border:5px double var(--crimson);color:var(--crimson);font-family:var(--f-title);font-size:clamp(1.4rem,5vw,2.8rem);padding:.6rem 1.6rem;transform:rotate(-5deg);animation:stampIn .6s cubic-bezier(.2,3,.4,1) both;text-transform:uppercase;background:rgba(13,2,2,.5)}
+#endLines{max-width:660px;font-family:var(--f-hand);font-size:clamp(1.15rem,3vw,1.5rem);color:var(--paper);line-height:1.65}
+body.ja #endLines{font-size:clamp(1rem,2.6vw,1.25rem)}
+#endStats{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+#endStats span{border:1px solid rgba(210,31,31,.6);color:var(--muted);font-size:.68rem;letter-spacing:.16em;padding:.3rem .8rem;text-transform:uppercase}
+#endHint{font-size:.8rem;color:var(--crimson2);max-width:540px}
+.endBtns{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center}
+.ebtn{border:1px solid var(--crimson);background:rgba(143,16,16,.25);color:var(--text);padding:.7rem 1.4rem;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;transition:.3s}
+.ebtn:hover{background:var(--crimson);color:#fff;transform:translateY(-3px)}
+.ebtn.primary{background:var(--blood);color:#fff}
+#endSponsor{font-size:.62rem;letter-spacing:.3em;color:var(--muted);text-transform:uppercase}
+
+#titleScreen{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.85rem;text-align:center;padding:1.2rem;background:#050101;overflow-y:auto}
+#titleScreen::before{content:"";position:absolute;inset:0;background:url('https://cdn.phototourl.com/free/2026-08-17-899052af-ddf4-4bbc-a222-b0f0add30445.png') center/cover;opacity:.32;filter:blur(2px) saturate(.9)}
+#titleScreen::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,transparent 20%,rgba(5,1,1,.93) 85%)}
+.tInner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:.8rem;width:100%}
+.tSponsor{background:var(--paper);color:var(--ink);font-weight:bold;font-size:.66rem;letter-spacing:.28em;padding:.35rem 1rem;transform:rotate(-2deg);clip-path:var(--torn);text-transform:uppercase}
+.tSponsor b{color:var(--blood)}
+.tLogo{font-family:var(--f-title);font-size:clamp(3.2rem,12vw,7rem);color:var(--crimson2);text-shadow:0 0 40px rgba(210,31,31,.65),5px 5px 0 #4d0808;line-height:1;animation:flick 8s infinite}
+@keyframes flick{0%,100%{opacity:1}90%{opacity:1}91%{opacity:.5}92%{opacity:1}95%{opacity:.75}96%{opacity:1}}
+.tSub{font-family:var(--f-hand);font-size:clamp(1.35rem,4vw,2.1rem);color:var(--paper);transform:rotate(-2deg)}
+.tTag{font-size:.74rem;letter-spacing:.26em;color:var(--muted);text-transform:uppercase}
+.langRow{display:flex;gap:.5rem}
+.lbtn{border:1px solid rgba(210,31,31,.6);background:rgba(16,3,3,.8);color:var(--muted);font-size:.72rem;letter-spacing:.12em;padding:.4rem .8rem;transition:.25s}
+.lbtn.on{background:var(--crimson);color:#fff;box-shadow:0 0 14px rgba(210,31,31,.6)}
+.tBtns{display:flex;flex-direction:column;gap:.65rem;width:min(330px,86vw);margin-top:.3rem}
+.tbtn{position:relative;background:var(--paper);color:var(--ink);font-family:var(--f-type);font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;padding:.8rem 1rem;clip-path:var(--torn);box-shadow:0 10px 26px rgba(0,0,0,.7);transition:.3s}
+body.ja .tbtn{font-size:.8rem}
+.tbtn:hover{transform:scale(1.04) rotate(-1deg);background:#efe0c0}
+.tbtn.red{background:var(--blood);color:#fff}
+.tbtn.red:hover{background:var(--crimson)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#tEnds{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;min-height:24px}
+#tEnds i{font-style:normal;font-size:.6rem;letter-spacing:.18em;border:2px solid rgba(210,31,31,.7);color:var(--crimson2);padding:.2rem .6rem;transform:rotate(-2deg);text-transform:uppercase}
+#tEnds i.off{border-color:rgba(185,159,131,.35);color:rgba(185,159,131,.5)}
+.tFoot{font-size:.66rem;color:var(--muted);line-height:1.7;position:relative;z-index:2;max-width:560px}
+.tFoot b{color:var(--paper)}
+
+.modal{position:fixed;inset:0;z-index:80;background:rgba(2,0,0,.88);display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.modal.on{display:flex}
+.mbox{background:rgba(18,4,4,.98);border:1px solid rgba(210,31,31,.55);box-shadow:0 30px 80px rgba(0,0,0,.9);width:min(580px,94vw);max-height:86vh;overflow-y:auto;padding:1.6rem 1.5rem;position:relative}
+.mbox h3{font-family:var(--f-title);color:var(--crimson2);font-size:1.45rem;margin-bottom:1rem}
+.mClose{position:absolute;top:10px;right:12px;color:var(--crimson2);font-size:1.15rem}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;font-size:.85rem;color:var(--muted)}
+.mrow input[type=range]{width:46%;accent-color:var(--crimson)}
+.mrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--crimson)}
+.mbtn{width:100%;border:1px solid var(--crimson);background:rgba(143,16,16,.2);color:var(--text);padding:.7rem;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.6rem;transition:.3s}
+.mbtn:hover{background:var(--crimson);color:#fff}
+.mbtn.danger{border-color:#7a0c0c;color:#e8b9b9}
+.mbtn.danger:hover{background:#7a0c0c}
+#logList{max-height:56vh;overflow-y:auto;display:flex;flex-direction:column;gap:.7rem}
+.logItem{border-left:3px solid var(--blood);padding-left:.8rem;font-size:.84rem;line-height:1.55;color:var(--muted)}
+.logItem b{color:var(--crimson2);display:block;font-size:.72rem;letter-spacing:.12em}
+.sponStamp{display:inline-block;border:4px double var(--gold);color:var(--gold);font-family:var(--f-title);font-size:1.3rem;padding:.4rem 1.2rem;transform:rotate(-3deg);margin-bottom:1rem;letter-spacing:.1em}
+.credLine{font-size:.86rem;color:var(--muted);margin-bottom:.7rem;line-height:1.7}
+.credLine b{color:var(--text)}
+.credLine .role{color:var(--crimson2)}
+.devGrid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin:.6rem 0 1rem}
+.devCard{border:1px dashed rgba(210,31,31,.5);padding:.6rem .7rem;font-size:.78rem;background:rgba(220,201,166,.06)}
+.devCard b{display:block;color:var(--text);font-size:.86rem}
+.devCard span{color:var(--crimson2);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+@media (max-width:640px){
+  .cslot img{max-width:46vw}
+  #dialogBox{min-height:150px;padding-top:1.7rem}
+  #hudChap{max-width:34vw;font-size:.56rem}
+  .hbtn{width:36px;height:36px;font-size:.85rem}
+  .devGrid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="game">
+  <img id="bgA" class="bgimg" alt="" decoding="async">
+  <img id="bgB" class="bgimg" alt="" decoding="async">
+  <div id="bgShade"></div>
+  <div id="charLayer">
+    <div class="cslot l" data-pos="l"></div>
+    <div class="cslot c" data-pos="c"></div>
+    <div class="cslot r" data-pos="r"></div>
+  </div>
+  <canvas id="rainCv"></canvas>
+  <div id="vign"></div>
+
+  <div id="hud">
+    <div id="hudChap">WEIST</div>
+    <div class="hudBtns">
+      <button class="hbtn" id="btnLang" title="Language">ID</button>
+      <button class="hbtn" id="btnEv" title="Evidence">🗂<span class="badge" id="evBadge">0</span></button>
+      <button class="hbtn" id="btnLog" title="Log">📜</button>
+      <button class="hbtn" id="btnAuto" title="Auto">▶</button>
+      <button class="hbtn" id="btnMusic" title="Music">🎵</button>
+      <button class="hbtn" id="btnSet" title="Settings">⚙</button>
+      <button class="hbtn" id="btnMenu" title="Menu">☰</button>
+    </div>
+  </div>
+
+  <div id="dialogBox">
+    <div id="namePlate">???</div>
+    <div id="dText"></div>
+    <div id="nextInd">▼</div>
+  </div>
+
+  <div id="choiceBox"></div>
+  <div id="chapCard"><div class="t" id="chapT"></div><div class="s" id="chapS"></div></div>
+  <div id="toast"><div class="ic" id="toastIc">🧳</div><div><div class="tg" id="toastTg">BUKTI BARU</div><div class="lb" id="toastLb"></div></div></div>
+
+  <div id="endScreen">
+    <div id="endStamp"></div>
+    <div id="endLines"></div>
+    <div id="endStats"></div>
+    <div id="endHint"></div>
+    <div class="endBtns">
+      <button class="ebtn primary" id="endRetry">⟲</button>
+      <button class="ebtn" id="endTitle">🏠</button>
+    </div>
+    <div id="endSponsor">SPONSOR: ZKA AGENCY</div>
+  </div>
+
+  <div id="evDrawer">
+    <button id="evClose" title="Tutup">✕</button>
+    <h3 data-i18n="evTitle">PAPAN BUKTI</h3>
+    <div class="sub" data-i18n="evSub">Kasus 872-11-1953</div>
+    <div id="evList"></div>
+    <div class="caseBox" id="caseBox"></div>
+  </div>
+
+  <div id="titleScreen">
+    <div class="tInner">
+      <div class="tSponsor"><span data-i18n="sponsorLbl">SPONSOR RESMI</span>: <b>ZKA AGENCY</b></div>
+      <div class="tTag" data-i18n="studioPresents">WEIST DETEK STUDIO mempersembahkan</div>
+      <h1 class="tLogo">WEIST</h1>
+      <div class="tSub" data-i18n="titleSub">— Di Kota Lama · Interactive Story —</div>
+      <div class="tTag" data-i18n="genres">Misteri • Killer • Romance • Action • Psikologi</div>
+      <div class="langRow">
+        <button class="lbtn" data-lang="id">🇮🇩 Indonesia</button>
+        <button class="lbtn" data-lang="en">🇬 English</button>
+        <button class="lbtn" data-lang="ja">🇯🇵 日本語</button>
+      </div>
+      <div class="tBtns">
+        <button class="tbtn red" id="tStart" data-i18n="start">▶ Mulai Penyelidikan</button>
+        <button class="tbtn" id="tContinue" data-i18n="continue">📂 Lanjutkan Berkas</button>
+        <button class="tbtn" id="tSet" data-i18n="settings">⚙ Pengaturan</button>
+        <button class="tbtn" id="tCred" data-i18n="credits">🦊 Kredit</button>
+      </div>
+      <div id="tEnds"></div>
+    </div>
+    <div class="tFoot"><span data-i18n="foot1">Berdasarkan novel</span> <b>WEIST</b> <span data-i18n="foot2">karya</span> <b>Bayang & Flowers</b> • <span data-i18n="foot3">Cover</span> <b>Antarez</b> • <span data-i18n="foot4">Sponsor</span> <b>ZKA AGENCY</b><br><span data-i18n="hint">Klik / spasi untuk lanjut • Pilihan mengubah akhir cerita</span> • v2.0</div>
+  </div>
+
+  <div class="modal" id="setModal"><div class="mbox">
+    <button class="mClose" data-close="setModal">✕</button>
+    <h3 data-i18n="setTitle">PENGATURAN</h3>
+    <div class="mrow"><span data-i18n="langLbl">Bahasa</span>
+      <span class="langRow">
+        <button class="lbtn" data-lang="id">ID</button>
+        <button class="lbtn" data-lang="en">EN</button>
+        <button class="lbtn" data-lang="ja">JA</button>
+      </span>
+    </div>
+    <div class="mrow"><span data-i18n="speed">Kecepatan teks</span><input type="range" id="setSpeed" min="1" max="5" step="1"></div>
+    <div class="mrow"><span data-i18n="autoLbl">Mode otomatis</span><input type="checkbox" id="setAuto"></div>
+    <div class="mrow"><span data-i18n="musicLbl">Musik latar</span><input type="checkbox" id="setMusic"></div>
+    <div class="mrow"><span data-i18n="volLbl">Volume musik</span><input type="range" id="setVol" min="0" max="100" step="5"></div>
+    <button class="mbtn danger" id="setWipe" data-i18n="wipe">🗑 Hapus Save Data</button>
+  </div></div>
+
+  <div class="modal" id="logModal"><div class="mbox">
+    <button class="mClose" data-close="logModal">✕</button>
+    <h3 data-i18n="logTitle">RIWAYAT DIALOG</h3>
+    <div id="logList"></div>
+  </div></div>
+
+  <div class="modal" id="menuModal"><div class="mbox">
+    <button class="mClose" data-close="menuModal">✕</button>
+    <h3 data-i18n="menuTitle">MENU BERKAS</h3>
+    <button class="mbtn" id="mSave" data-i18n="save">💾 Simpan Penyelidikan</button>
+    <button class="mbtn" id="mLoad" data-i18n="load">📂 Muat Save</button>
+    <button class="mbtn" id="mSet" data-i18n="settings">⚙ Pengaturan</button>
+    <button class="mbtn danger" id="mTitle" data-i18n="backTitle">🏠 Kembali ke Judul</button>
+  </div></div>
+
+  <div class="modal" id="credModal"><div class="mbox">
+    <button class="mClose" data-close="credModal">✕</button>
+    <h3 data-i18n="credTitle">KREDIT</h3>
+    <div class="sponStamp">SPONSOR · ZKA AGENCY</div>
+    <div class="credLine"><b>WEIST: Di Kota Lama — Interactive Story</b><br><span data-i18n="credGame">Game cerita interaktif resmi berdasarkan novel WEIST.</span></div>
+    <div class="credLine"><b data-i18n="credDevLbl">DEVELOPER — WEIST DETEK STUDIO:</b></div>
+    <div class="devGrid">
+      <div class="devCard"><b>Januar</b><span data-i18n="roleProg">Programmer</span></div>
+      <div class="devCard"><b>Riski</b><span data-i18n="roleAnalyst">Analis Sistem</span></div>
+      <div class="devCard"><b>Faris</b><span data-i18n="roleUiux">Desainer UI/UX</span></div>
+      <div class="devCard"><b>Alvi</b><span data-i18n="roleDb">Database Engineer</span></div>
+      <div class="devCard"><b>Wildan</b><span data-i18n="roleQa">QA / Technical Support</span></div>
+      <div class="devCard"><b>ZKA AGENCY</b><span data-i18n="roleSponsor">Sponsor Resmi</span></div>
+    </div>
+    <div class="credLine"><b data-i18n="credNovelLbl">Novel asli:</b> Bayang (Azael Vaun) & Flowers (Isabella) • <b data-i18n="credCoverLbl">Cover & ilustrasi:</b> Antarez</div>
+    <div class="credLine"><b data-i18n="credEngineLbl">Engine:</b> <span data-i18n="credEngine">Visual novel engine vanilla HTML/CSS/JS — branching story, 7 bukti, 3 ending, 3 bahasa, save/load lokal, OST interaktif.</span></div>
+    <div class="credLine"><b data-i18n="credReleaseLbl">Rilis novel:</b> 29 Agustus 2026 • Wattpad • ±129 chapter</div>
+  </div></div>
+
+  <audio id="ost" src="https://www.image2url.com/r2/default/audio/1786936005448-baa72197-4e9b-4046-8a05-a1bb603633a4.mp3" loop preload="none"></audio>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,c){return (c||document).querySelector(s)};
+var $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+
+/* ========== DATABASE (sesuai berkas yang dikirim) ========== */
+var BG={
+  room1953:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/1839d8e36-bca9-454d-be31-852dfb668f73.png',
+  office:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/19b87db57-9b8f-45aa-bf87-a226f0a393e3.png',
+  hall:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/103fe3b64-f78a-4fde-a1b2-b1afe747ef02.png',
+  hotel:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/15f041b32-50f7-4eab-b6ce-8fb30efda449.png',
+  interog:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/1e451aa0a-a4ed-4fdb-951e-d8e497a220a4.png',
+  ext:'https://image.qwenlm.ai/public_source/30f7a074-4fc3-46e8-b610-13531af769c6/112e5aebc-53d3-448f-862d-d5795c42738f.png'
+};
+var CH={
+  kirana:'https://image.qwenlm.ai/public_source/30f7a074-4fc3-46e8-b610-13531af769c6/12ab78f1c-6f9d-440e-a3d4-8e7ab95eefa3.png',
+  danang:'https://image.qwenlm.ai/public_source/4b71e6f3-e3e5-41f3-91d9-a560f3225e2a/1beac041e-46c8-4ee4-9efb-1c8e635822ad.png',
+  andhika:'https://image.qwenlm.ai/public_source/30f7a074-4fc3-46e8-b610-13531af769c6/10b5a34c9-5ba9-41a9-bc54-f2dfa4f31c2f.png'
+};
+var NAME={
+  kirana:{id:'Kirana Aretha',en:'Kirana Aretha',ja:'キラナ・アレタ'},
+  danang:{id:'Danang Suroso',en:'Danang Suroso',ja:'ダナン・スロソ'},
+  penjaga:{id:'Penjaga Malam',en:'Night Guard',ja:'夜警'},
+  q:{id:'???',en:'???',ja:'？？？'}
+};
+var EVID={
+  kertas:{ic:'📜',lb:{id:'Kertas Bertinta Merah',en:'Red-Inked Paper',ja:'赤いインクの紙'},ds:{id:'«Jangan percaya pada orang yang datang setelah aku.»',en:'"Don\'t trust the one who comes after me."',ja:'「私の後に来る者を信じるな。」'}},
+  pulpen:{ic:'🖊️',lb:{id:'Pulpen Berinisial "K"',en:'Pen Engraved "K"',ja:'イニシャル「K」の万年筆'},ds:{id:'Masih bertinta segar. Milik Karin?',en:'Still freshly inked. Karin\'s?',ja:'インクは新しい。カリンのものか？'}},
+  koper:{ic:'🧳',lb:{id:'Koper Hitam 1953',en:'Black Suitcase 1953',ja:'1953年の黒い鞄'},ds:{id:'Sama seperti foto arsip. Kuncinya masih tertutup.',en:'Same as the archive photo. The lock is still shut.',ja:'資料写真と同一。鍵は閉じたまま。'}},
+  amplop:{ic:'✉️',lb:{id:'Amplop Bernama Kirana',en:'Envelope Addressed to Kirana',ja:'キラナ宛の封筒'},ds:{id:'«Jangan cari pembunuhnya. Cari siapa yang membuat kasus ini menghilang.»',en:'"Don\'t seek the killer. Seek who made this case disappear."',ja:'「殺人者を探すな。この事件を消した者を探せ。」'}},
+  belati:{ic:'🗡️',lb:{id:'Belati Hangat',en:'Warm Dagger',ja:'温かい短剣'},ds:{id:'Dijatuhkan bayangan itu. Baru saja digenggam.',en:'Dropped by the shadow. Recently held.',ja:'影が落としたもの。つい先ほどまで握られていた。'}},
+  ukiran:{ic:'🦊',lb:{id:'Ukiran Rubah',en:'Fox Carving',ja:'狐の彫刻'},ds:{id:'Dingin... seolah baru disentuh beberapa detik lalu.',en:'Cold... as if touched seconds ago.',ja:'冷たい……たった今触れたかのように。'}},
+  kaca:{ic:'🔍',lb:{id:'Kaca Pembesar Arsip',en:'Archive Magnifying Glass',ja:'資料の虫眼鏡'},ds:{id:'Alat Karin yang tertinggal di dalam map berkas.',en:'Karin\'s tool, left inside the case folder.',ja:'カリンが資料夾みに残した道具。'}}
+};
+var EVORDER=['kertas','pulpen','koper','amplop','belati','ukiran','kaca'];
+
+/* ========== UI 3 BAHASA ========== */
+var UI={
+  sponsorLbl:{id:'SPONSOR RESMI',en:'OFFICIAL SPONSOR',ja:'公式スポンサー'},
+  studioPresents:{id:'WEIST DETEK STUDIO mempersembahkan',en:'WEIST DETEK STUDIO presents',ja:'WEIST DETEK STUDIOがおくる'},
+  titleSub:{id:'— Di Kota Lama · Interactive Story —',en:'— In the Old City · Interactive Story —',ja:'― 旧市街にて · インタラクティブストーリー ―'},
+  genres:{id:'Misteri • Killer • Romance • Action • Psikologi',en:'Mystery • Killer • Romance • Action • Psychological',ja:'ミステリー • キラー • ロマンス • アクション • サイコ'},
+  start:{id:'▶ Mulai Penyelidikan',en:'▶ Begin Investigation',ja:'▶ 捜査を開始'},
+  continue:{id:'📂 Lanjutkan Berkas',en:'📂 Continue File',ja:'📂 続きから'},
+  settings:{id:'⚙ Pengaturan',en:'⚙ Settings',ja:'⚙ 設定'},
+  credits:{id:'🦊 Kredit',en:'🦊 Credits',ja:'🦊 クレジット'},
+  foot1:{id:'Berdasarkan novel',en:'Based on the novel',ja:'原作小説'},
+  foot2:{id:'karya',en:'by',ja:'著'},
+  foot3:{id:'Cover',en:'Cover',ja:'カバー'},
+  foot4:{id:'Sponsor',en:'Sponsor',ja:'スポンサー'},
+  hint:{id:'Klik / spasi untuk lanjut • Pilihan mengubah akhir cerita',en:'Click / space to advance • Choices change the ending',ja:'クリック/スペースで進む • 選択が結末を変える'},
+  evTitle:{id:'PAPAN BUKTI',en:'EVIDENCE BOARD',ja:'証拠ボード'},
+  evSub:{id:'Kasus 872-11-1953',en:'Case 872-11-1953',ja:'872-11-1953号事件'},
+  setTitle:{id:'PENGATURAN',en:'SETTINGS',ja:'設定'},
+  langLbl:{id:'Bahasa',en:'Language',ja:'言語'},
+  speed:{id:'Kecepatan teks',en:'Text speed',ja:'文字速度'},
+  autoLbl:{id:'Mode otomatis',en:'Auto-play mode',ja:'オートモード'},
+  musicLbl:{id:'Musik latar',en:'Background music',ja:'BGM'},
+  volLbl:{id:'Volume musik',en:'Music volume',ja:'音量'},
+  wipe:{id:'🗑 Hapus Save Data',en:'🗑 Delete Save Data',ja:'🗑 セーブ削除'},
+  logTitle:{id:'RIWAYAT DIALOG',en:'DIALOGUE LOG',ja:'会話ログ'},
+  menuTitle:{id:'MENU BERKAS',en:'FILE MENU',ja:'ファイルメニュー'},
+  save:{id:'💾 Simpan Penyelidikan',en:'💾 Save Investigation',ja:'💾 捜査を保存'},
+  load:{id:'📂 Muat Save',en:'📂 Load Save',ja:'📂 ロード'},
+  backTitle:{id:'🏠 Kembali ke Judul',en:'🏠 Back to Title',ja:'🏠 タイトルへ'},
+  credTitle:{id:'KREDIT',en:'CREDITS',ja:'クレジット'},
+  credGame:{id:'Game cerita interaktif resmi berdasarkan novel WEIST.',en:'The official interactive story game based on the novel WEIST.',ja:'小説WEIST公式インタラクティブストーリーゲーム。'},
+  credDevLbl:{id:'DEVELOPER — WEIST DETEK STUDIO:',en:'DEVELOPERS — WEIST DETEK STUDIO:',ja:'開発 — WEIST DETEK STUDIO：'},
+  roleProg:{id:'Programmer',en:'Programmer',ja:'プログラマー'},
+  roleAnalyst:{id:'Analis Sistem',en:'Systems Analyst',ja:'システムアナリスト'},
+  roleUiux:{id:'Desainer UI/UX',en:'UI/UX Designer',ja:'UI/UXデザイナー'},
+  roleDb:{id:'Database Engineer',en:'Database Engineer',ja:'データベースエンジニア'},
+  roleQa:{id:'QA / Technical Support',en:'QA / Technical Support',ja:'QA / テクニカルサポート'},
+  roleSponsor:{id:'Sponsor Resmi',en:'Official Sponsor',ja:'公式スポンサー'},
+  credNovelLbl:{id:'Novel asli:',en:'Original novel:',ja:'原作小説：'},
+  credCoverLbl:{id:'Cover & ilustrasi:',en:'Cover & art:',ja:'カバー＆イラスト：'},
+  credEngineLbl:{id:'Engine:',en:'Engine:',ja:'エンジン：'},
+  credEngine:{id:'Visual novel engine vanilla HTML/CSS/JS — branching story, 7 bukti, 3 ending, 3 bahasa, save/load lokal, OST interaktif.',en:'Vanilla HTML/CSS/JS visual novel engine — branching story, 7 proofs, 3 endings, 3 languages, local save/load, interactive OST.',ja:'バニラHTML/CSS/JSビジュアルノベルエンジン ― 分岐ストーリー、7つの証拠、3エンディング、3言語、ローカルセーブ、OST付き。'},
+  credReleaseLbl:{id:'Rilis novel:',en:'Novel release:',ja:'小説リリース：'},
+  newEv:{id:'BUKTI BARU DIAMANKAN',en:'NEW EVIDENCE SECURED',ja:'新証拠を確保'},
+  saved:{id:'Penyelidikan disimpan.',en:'Investigation saved.',ja:'捜査を保存しました。'},
+  lockedEv:{id:'??? — belum ditemukan',en:'??? — not yet found',ja:'??? ― 未発見'},
+  lockedDs:{id:'Terus selidiki...',en:'Keep investigating...',ja:'捜査を続けよ……'},
+  narrator:{id:'Narator',en:'Narrator',ja:'語り'},
+  stEv:{id:'Bukti',en:'Proofs',ja:'証拠'},
+  stCh:{id:'Pilihan',en:'Choices',ja:'選択'},
+  stTr:{id:'Sifat',en:'Traits',ja:'性質'},
+  stEnd:{id:'Ending',en:'Ending',ja:'エンディング'},
+  retry:{id:'⟲ Ulangi Penyelidikan',en:'⟲ Retry Investigation',ja:'⟲ やり直す'},
+  toTitle:{id:'🏠 Kembali ke Judul',en:'🏠 Back to Title',ja:'🏠 タイトルへ'},
+  secret:{id:'Ending rahasia belum terbuka — kumpulkan 7 bukti (periksa sekeliling gedung di prolog & ikuti bayangan di lorong).',en:'Secret ending locked — gather all 7 proofs (search around the building in the prologue & follow the shadow in the corridor).',ja:'隠しエンディング未開放 ― プロローグで建物の周囲を調べ、通路で影を追って7つの証拠を集え。'},
+  allFound:{id:'Semua bukti dan ending rahasia ditemukan. Sang Rubah puas... untuk sekarang.',en:'All proofs and the secret ending found. The Fox is pleased... for now.',ja:'全ての証拠と隠しエンディングに到達。狐は満足げだ……今はね。'},
+  caseFile:{id:'GEDUNG LAMA • SEMARANG • NOV 1953 • STATUS: DITUTUP • PENYELIDIK TERAKHIR: KARIN',en:'OLD BUILDING • SEMARANG • NOV 1953 • STATUS: CLOSED • LAST INVESTIGATOR: KARIN',ja:'旧館 • スマラン • 1953年11月 • 状態：閉鎖 • 最終捜査官：カリン'}
+};
+
+/* ========== TEKS CERITA 3 BAHASA ========== */
+var T={
+ p1:{id:'Semarang, Jawa Tengah — November 1953. Hujan turun sejak sore.',en:'Semarang, Central Java — November 1953. Rain has fallen since the afternoon.',ja:'中央ジャワ・スマラン――1953年11月。雨は夕方から降り続いていた。'},
+ p2:{id:'Di ujung jalan tua yang nyaris dilupakan kota, berdiri gedung berlantai tiga dengan dinding menghitam dimakan usia.',en:'At the end of an old street nearly forgotten by the city stands a three-story building, its walls blackened by age.',ja:'街に忘れ去られた古い通りの果てに、歳月で黒ずんだ三階建ての建物が立っていた。'},
+ p3:{id:'Gedung Lama. Tidak ada yang tahu pasti siapa pemilik pertamanya. Tidak ada yang berani tinggal di sana.',en:'The Old Building. No one knows who first owned it. No one dares to live there.',ja:'「旧館」。最初の持ち主を知る者はいない。住もうとする者もいない。'},
+ p4:{id:'Pukul 23.17. Sebuah jeritan terdengar dari lantai tiga.',en:'23:17. A scream is heard from the third floor.',ja:'23時17分。三階から絶叫が響いた。'},
+ p5:{id:'Suara itu... dari lantai tiga! Apa yang harus kulakukan?!',en:'That sound... from the third floor! What should I do?!',ja:'あの声は……三階か！どうするべきだ！？'},
+ p6:{id:'Kau menyusuri sisi gedung di bawah hujan. Di pintu belakang— sesuatu yang janggal.',en:'You circle the building under the rain. At the back door— something is off.',ja:'雨の中、建物の側面を伝う。裏口で――何かがおかしい。'},
+ p7:{id:'Sebuah pulpen tua tergeletak di lumpur, berinisial "K". Ujungnya masih basah oleh tinta.',en:'An old pen lies in the mud, engraved with a "K". Its tip is still wet with ink.',ja:'泥の中に万年筆が落ちていた。イニシャルは「K」。ペン先にはまだインクが濡れている。'},
+ p8:{id:'Seseorang berada di sini beberapa menit lalu... sebelum jeritan itu.',en:'Someone was here minutes ago... before that scream.',ja:'絶叫の直前、数分前まで誰かがここにいたのだ。'},
+ p9:{id:'Pintu depan terkunci dari dalam. Setelah didobrak... ruangan lantai tiga kosong.',en:'The front door was locked from inside. After breaking it down... the third-floor room is empty.',ja:'正面の扉は内側から施錠されていた。破って入ると――三階の部屋は空だった。'},
+ p10:{id:'Tidak ada korban. Tidak ada pelaku. Tidak ada tanda-tanda perkelahian.',en:'No victim. No culprit. No signs of a struggle.',ja:'被害者なし。犯人なし。争った跡もなし。'},
+ p11:{id:'Hanya sebuah meja kayu tua di tengah ruangan. Di atasnya: sebuah koper hitam... dan selembar kertas dengan tulisan tangan merah.',en:'Only an old wooden table at the center of the room. On it: a black suitcase... and a sheet of paper in red handwriting.',ja:'部屋の中央に古い木の机が一つ。その上に――黒い鞄、そして赤い手書きの紙一枚。'},
+ p12:{id:'«Jangan percaya pada orang yang datang setelah aku.»',en:'"Don\'t trust the one who comes after me."',ja:'「私の後に来る者を信じるな。」'},
+ p13:{id:'Malam itu tercatat sebagai Kasus 872-11-1953.',en:'That night was recorded as Case 872-11-1953.',ja:'この夜は「872-11-1953号事件」として記録された。'},
+ p14:{id:'Penyelidikan dipimpin seorang penyidik bernama Karin. Tiga hari kemudian... Karin menghilang.',en:'An investigator named Karin led the case. Three days later... Karin vanished.',ja:'カリンという捜査官が事件を引き継いだ。三日後――カリンは姿を消した。'},
+ p15:{id:'Kasus ditutup. Bukan karena selesai— melainkan karena tidak ada lagi orang yang berani membukanya.',en:'The case was closed. Not because it was solved— but because no one dared to reopen it.',ja:'事件は解決せず閉じられた。もはや誰も、開こうとしなかったからだ。'},
+ k1:{id:'Kapten memanggil saya?',en:'You called me, Captain?',ja:'隊長、呼びましたか？'},
+ d1:{id:'Duduk, Aretha. Ada kasus lama untukmu.',en:'Sit down, Aretha. There is an old case for you.',ja:'座れ、アレタ。古い事件を預ける。'},
+ k2:{id:'Seberapa lama, Kapten?',en:'How old, Captain?',ja:'どれほど古いのです？'},
+ n1:{id:'Danang mendorong map cokelat berdebu ke arahnya. Debu tipis keluar dari sela-sela kertas.',en:'Danang pushes a dusty brown folder toward her. Thin dust escapes from between the papers.',ja:'ダナンは埃っぽい茶色の資料夾みを彼女へ押した。紙の隙間から薄い埃がこぼれる。'},
+ d2:{id:'Tujuh puluh tiga tahun.',en:'Seventy-three years.',ja:'七十三年だ。'},
+ n2:{id:'Foto hitam putih. Denah bangunan. Laporan pemeriksaan. Potongan surat kabar. Dan satu halaman yang membuat tangan Kirana berhenti.',en:'Black-and-white photos. Floor plans. Inspection reports. Newspaper clippings. And one page that makes Kirana\'s hand stop.',ja:'白黒写真、見取図、検査報告書、新聞の切り抜き。そしてキラナの手を止めた一枚の紙。'},
+ k3:{id:'KASUS 872-11-1953... Gedung Lama, Semarang. Status: DITUTUP. Penyelidik terakhir: Karin.',en:'CASE 872-11-1953... Old Building, Semarang. Status: CLOSED. Last investigator: Karin.',ja:'872-11-1953号事件……スマランの旧館。状態：閉鎖。最終捜査官：カリン。'},
+ k4:{id:'1953? Dan Bapak ingin saya melanjutkan kasus ini?',en:'1953? And you want me to continue this case?',ja:'1953年？そして私にこの事件を継げと？'},
+ d3:{id:'Benar.',en:'Correct.',ja:'ああ。'},
+ k5:{id:'Kapten, pelaku kasus ini mungkin sudah meninggal.',en:'Captain, the culprit of this case may already be dead.',ja:'隊長、この事件の犯人はもう死んでいるかもしれません。'},
+ d4:{id:'Memang.',en:'Indeed.',ja:'だろうな。'},
+ k6:{id:'Barang buktinya?',en:'The physical evidence?',ja:'証拠品は？'},
+ d5:{id:'Sebagian hilang.',en:'Mostly lost.',ja:'大半は失われた。'},
+ k7:{id:'Saksi?',en:'Witnesses?',ja:'証人は？'},
+ d6:{id:'Sudah tidak ada.',en:'None left.',ja:'もはやいない。'},
+ k8:{id:'Berarti apa yang kita punya?',en:'Then what do we have?',ja:'では我々に何が残るのです？'},
+ n3:{id:'Danang diam. Kemudian ia menjawab pelan.',en:'Danang falls silent. Then he answers softly.',ja:'ダナンは黙り込み、やがて静かに答えた。'},
+ d7:{id:'Satu kesalahan. Kasus itu seharusnya tidak pernah ditutup.',en:'One mistake. That case should never have been closed.',ja:'一つの過ちだ。あの事件は決して閉じてはならなかった。'},
+ n4:{id:'Ia mengeluarkan sebuah foto gedung tua dari laci mejanya. Di bagian belakang foto, ada tulisan tangan...',en:'He takes an old photo of the building from his desk drawer. On the back of the photo, there is handwriting...',ja:'彼は机の引き出しから旧館の写真を出した。写真の裏に、手書きの文字が……'},
+ k9:{id:'14 Januari 2026... ini tanggal hari ini?',en:'January 14, 2026... this is today\'s date?',ja:'2026年1月14日……これは今日の日付では？'},
+ d8:{id:'Ambil malammu. Tapi ingat— orang yang menulis tanggal itu tidak menunggu.',en:'Take your night. But remember— the one who wrote that date does not wait.',ja:'一晩くれてやる。だが忘れるな――日付を書いた者は待たない。'},
+ k10:{id:'...Besok pagi jawaban saya: saya berangkat, Kapten.',en:'...Tomorrow morning my answer: I\'m going, Captain.',ja:'……明朝の答えは一つです。行きます、隊長。'},
+ n5:{id:'Malam itu juga, berkas 872-11-1953 resmi dibuka kembali. Untuk pertama kalinya dalam tujuh puluh tiga tahun.',en:'That very night, file 872-11-1953 is officially reopened. For the first time in seventy-three years.',ja:'その夜、872-11-1953号資料は正式に再開された。七十三年ぶりのことだった。'},
+ g1:{id:'Bangunan itu masih berdiri. Lebih tua. Lebih sunyi. Namun anehnya... pintu depannya baru saja dicat.',en:'The building still stands. Older. Quieter. Yet strangely... its front door has just been painted.',ja:'建物はまだ立っていた。より老い、より静かに。しかし奇妙なことに……正面の扉は塗られたばかりだった。'},
+ g2:{id:'Satu lampu di lantai tiga menyala.',en:'A single light burns on the third floor.',ja:'三階に一つの灯りが点いている。'},
+ k11:{id:'Mustahil... gedung ini seharusnya kosong selama tujuh puluh tiga tahun.',en:'Impossible... this building should have been empty for seventy-three years.',ja:'あり得ない……この館は七十三年間空のはずだ。'},
+ g3:{id:'Sebelum tangannya menyentuh gagang— KLIK. Pintu terbuka sendiri.',en:'Before her hand touches the handle— CLICK. The door opens by itself.',ja:'取っ手に触れる前に――カチ。扉はひとりでに開いた。'},
+ g4:{id:'Di dalam gedung: gelap. Tidak ada suara. Tidak ada angin. Tidak ada siapa-siapa.',en:'Inside the building: darkness. No sound. No wind. No one at all.',ja:'館の中は闇。音もなく、風もなく、誰もいない。'},
+ g5:{id:'Hanya sebuah suara samar dari lantai atas. Tok... Tok... Tok... Seperti seseorang sedang mengetuk meja.',en:'Only a faint sound from the floor above. Tok... Tok... Tok... Like someone knocking on a table.',ja:'上階から微かな音だけ。トク……トク……トク……まるで誰かが机を叩いているように。'},
+ s1:{id:'Kirana mengejar bayangan itu. Tetapi ketika ia sampai di ujung lorong— tidak ada siapa-siapa.',en:'Kirana chases the shadow. But when she reaches the corridor\'s end— there is no one.',ja:'キラナは影を追った。だが通路の先に着くと――誰もいない。'},
+ s2:{id:'Hanya sebuah pintu tua berukirkan rubah... dan sebuah belati tergeletak, masih hangat.',en:'Only an old door carved with a fox... and a dagger lying there, still warm.',ja:'狐の彫刻がある古い扉……そして落ちたばかりの、まだ温かい短剣。'},
+ s3:{id:'Dari belakangnya, terdengar suara kertas bergeser pelan. Ruang tengah.',en:'From behind her, the soft sound of paper shifting. The central room.',ja:'背後から紙の擦れるかすかな音。中央の間だ。'},
+ c1:{id:'Di tengah ruangan yang sama seperti foto tahun 1953: sebuah koper hitam.',en:'In the same room as the 1953 photo: a black suitcase.',ja:'1953年の写真と同じ部屋の中央に、黒い鞄。'},
+ c2:{id:'Di atas koper itu terdapat sebuah amplop. Nama Kirana tertulis di sana: KIRANA ARETHA.',en:'On top of the suitcase lies an envelope. Kirana\'s name is written on it: KIRANA ARETHA.',ja:'鞄の上に封筒が一つ。名前が書かれている――キラナ・アレタ。'},
+ c3:{id:'Krek... dari ujung lorong, sebuah bayangan bergerak.',en:'Creak... from the corridor\'s end, a shadow moves.',ja:'ミシ……通路の先で、影が動いた。'},
+ s4:{id:'Kirana menyusul ke ujung lorong. Kosong. Hanya pintu tua berukirkan rubah.',en:'Kirana rushes to the corridor\'s end. Empty. Only an old door carved with a fox.',ja:'キラナは通路の先へ急いだ。無人。狐の彫刻の古い扉があるだけ。'},
+ c4:{id:'Kembali ke ruang tengah: koper hitam itu masih menunggu, bersama amplop bertuliskan namanya.',en:'Back in the central room: the black suitcase still waits, together with an envelope bearing her name.',ja:'中央の間へ戻ると、黒い鞄がまだ待っていた。彼女の名の封筒とともに。'},
+ m1:{id:'Siapa di sana?! Berhenti!',en:'Who\'s there?! Stop!',ja:'誰だ！？止まれ！'},
+ m2:{id:'Hanya gema suaranya sendiri. Malam itu Kirana kembali ke hotel, membawa amplop yang seharusnya tidak pernah ada.',en:'Only the echo of her own voice. That night Kirana returns to the hotel, carrying an envelope that should never have existed.',ja:'残ったのは自分の声の反響だけ。その夜、キラナは存在してはならぬ封筒を持ちホテルへ戻った。'},
+ h1:{id:'Satu per satu berkas dibentangkan. Nama. Tanggal. Foto. Saksi. Penyidik.',en:'One by one the files are spread out. Names. Dates. Photos. Witnesses. Investigators.',ja:'資料が一つずつ机に広げられる。名前、日付、写真、証人、捜査官。'},
+ h2:{id:'Setiap kali Kirana mencari hubungan antara Gedung Lama dan Jakarta... seluruh jalur berakhir pada satu nama.',en:'Every time Kirana traces a link between the Old Building and Jakarta... every path ends at one name.',ja:'旧館とジャカルタの接点を辿るたび……すべての道は一つの名前に辿り着く。'},
+ h3:{id:'Andhika Maheswara. Pemuda yang bahkan belum lahir ketika kasus itu terjadi.',en:'Andhika Maheswara. A youth not even born when the case occurred.',ja:'アンディカ・マヘスワラ。事件当時、まだ生まれてすらいない青年。'},
+ h3b:{id:'Di sela map, tertinggal sebuah kaca pembesar tua milik penyidik terakhir.',en:'Inside the folder, an old magnifying glass left behind by the last investigator.',ja:'資料夾みの隙間に、最後の捜査官の古い虫眼鏡が残されていた。'},
+ k12:{id:'Andhika Maheswara... kenapa sejak malam itu, namamu terasa seperti sebuah peringatan?',en:'Andhika Maheswara... why, since that night, does your name feel like a warning?',ja:'アンディカ・マヘスワラ……なぜあの夜から、お前の名は警告のように響く？'},
+ h4:{id:'Dan di dunia yang tidak mengenal hukum, nama itu dikenal dengan sebutan lain: Rubah Pradipta.',en:'And in a world that knows no law, that name is known by another: Rubah Pradipta.',ja:'そして法を知らぬ世界で、その名は別の呼び名で知られる――ルバ・プラディプタと。'},
+ eA1:{id:'Telepon pagi itu mengubah segalanya. Kasus Gedung Lama secara resmi dipindahkan ke Jakarta.',en:'That morning phone call changes everything. The Old Building case is officially moved to Jakarta.',ja:'朝の一本の電話がすべてを変えた。旧館事件は正式にジャカルタへ移管された。'},
+ eA2:{id:'Untuk pertama kalinya dalam tujuh puluh tiga tahun— kasus 872-11-1953 kembali hidup.',en:'For the first time in seventy-three years— case 872-11-1953 lives again.',ja:'七十三年ぶりに――872-11-1953号事件が再び息を吹き返した。'},
+ eA3:{id:'Di kota itu, seorang detektif polisi sedang mencari kebenaran... sementara seseorang yang lain memastikan kebenaran tersebut tidak pernah ditemukan.',en:'In that city, a police detective is searching for the truth... while someone else ensures that truth is never found.',ja:'その街で、ある刑事は真実を捜し続けている……そして別の誰かは、その真実が永遠に見つからぬよう仕向けている。'},
+ eB1:{id:'Kirana menutup map itu. Malam itu juga, ia menyusuri nama Andhika seorang diri.',en:'Kirana closes the folder. That very night, she tracks Andhika\'s name alone.',ja:'キラナは資料夾みを閉じた。その夜すぐに、一人でアンディカの名を追った。'},
+ eB2:{id:'Ia tidak tahu bahwa di ujung kota, seseorang sudah lebih dulu menghitung setiap langkahnya.',en:'She does not know that at the city\'s edge, someone is already counting her every step.',ja:'彼女は知らない。街の端で、既に誰かが彼女の歩みを一つずつ数えていることを。'},
+ eB3:{id:'Detektif Aretha... kau mencari pembunuhnya, atau... mencariku?',en:'Detective Aretha... are you searching for the killer, or... searching for me?',ja:'アレタ刑事……探し物は殺人者か、それとも……私か？'},
+ eC1:{id:'Sebelum map ditutup, sesuatu jatuh dari sela amplop: sebuah halaman kedua yang tadi tidak ada di sana.',en:'Before the folder closes, something slips from the envelope: a second page that was not there before.',ja:'資料を閉じる直前、封筒の隙間から何かが落ちた。先ほどまでは存在しなかった二枚目の紙。'},
+ eC2:{id:'Gambar seekor rubah bertinta merah. Dan satu kalimat di bawahnya:',en:'A drawing of a fox in red ink. And one sentence beneath it:',ja:'赤いインクで描かれた狐の絵。そしてその下に一行。'}
+};
+var CHOPT={
+ ch1o1:{id:'🚪 Dobrak pintu depan sekarang!',en:'🚪 Break down the front door now!',ja:'🚪 今すぐ正面の扉を破る！'},
+ ch1o2:{id:'🔦 Periksa sekeliling gedung terlebih dahulu.',en:'🔦 Search around the building first.',ja:'🔦 まず建物の周囲を調べる。'},
+ o2a:{id:'✅ "Saya terima kasus ini, Kapten."',en:'✅ "I accept this case, Captain."',ja:'✅「この事件、私が引き受けます。」'},
+ o2b:{id:'⏳ "Beri saya satu malam untuk berpikir."',en:'⏳ "Give me one night to think."',ja:'⏳「一晩、考えさせてください。」'},
+ o3a:{id:'🔫 Raih pistol di pinggang, masuk perlahan.',en:'🔫 Draw the pistol at her waist, enter slowly.',ja:'🔫 腰の拳銃に手をかけ、静かに進む。'},
+ o3b:{id:'🔦 Siapkan senter, matikan suara radio.',en:'🔦 Ready the flashlight, silence the radio.',ja:'🔦 ライトを構え、無線を消す。'},
+ o4a:{id:'👤 Ikuti bayangan di ujung lorong.',en:'👤 Follow the shadow at the corridor\'s end.',ja:'👤 通路の先の影を追う。'},
+ o4b:{id:'🧳 Periksa koper hitam di ruang tengah.',en:'🧳 Examine the black suitcase in the central room.',ja:'🧳 中央の間の黒い鞄を調べる。'},
+ o5a:{id:'📞 Laporkan nama itu ke Kapten Danang pagi ini.',en:'📞 Report the name to Captain Danang this morning.',ja:'📞 朝一番でダナン隊長に報告する。'},
+ o5b:{id:'🕵️ Selidiki sendiri. Semakin sedikit yang tahu, semakin aman.',en:'🕵️ Investigate alone. The fewer who know, the safer.',ja:'🕵️ 単独で捜査する。知る者が少ないほど安全だ。'}
+};
+var CHTITLE={
+ ch1:{id:'Apa yang dilakukan penjaga malam itu?',en:'What does the night guard do?',ja:'その夜、夜警はどう動いたか？'},
+ ch2:{id:'Jawaban Kirana?',en:'Kirana\'s answer?',ja:'キラナの答えは？'},
+ ch3:{id:'Bagaimana Kirana masuk?',en:'How does Kirana enter?',ja:'キラナはどう館へ入る？'},
+ ch4:{id:'Langkah berikutnya?',en:'The next move?',ja:'次の一手は？'},
+ ch5:{id:'Keputusan terakhir malam itu...',en:'The final decision that night...',ja:'その夜の最後の決断……'}
+};
+var CHAP={
+ ch0:{t:{id:'PROLOG',en:'PROLOGUE',ja:'プロローグ'},s:{id:'GEDUNG LAMA — Semarang, November 1953',en:'THE OLD BUILDING — Semarang, November 1953',ja:'旧館 ― スマラン、1953年11月'}},
+ ch1t:{t:{id:'BAB 1',en:'CHAPTER 1',ja:'第1章'},s:{id:'KASUS LAMA — Jakarta, 14 Januari 2026',en:'THE OLD CASE — Jakarta, January 14, 2026',ja:'古い事件 ― ジャカルタ、2026年1月14日'}},
+ ch2t:{t:{id:'BAB 2',en:'CHAPTER 2',ja:'第2章'},s:{id:'GEDUNG LAMA — Semarang, dua hari kemudian',en:'THE OLD BUILDING — Semarang, two days later',ja:'旧館 ― スマラン、二日後'}},
+ ch3t:{t:{id:'BAB 3',en:'CHAPTER 3',ja:'第3章'},s:{id:'NAMA ITU — Malam, hotel Semarang',en:'THAT NAME — Night, a Semarang hotel',ja:'その名 ― 夜、スマランのホテル'}}
+};
+var ENDMETA={
+ A:{title:{id:'ENDING A — KASUS DIBUKA KEMBALI',en:'ENDING A — CASE REOPENED',ja:'エンディングA ― 事件再開'},lines:{
+   id:['Perjalanan menuju Jakarta bukanlah akhir dari penyelidikan.','Melainkan awal dari sesuatu yang jauh lebih besar.','— Bersambung ke Chapter 1 —'],
+   en:['The journey to Jakarta is not the end of the investigation.','It is the beginning of something far greater.','— To be continued in Chapter 1 —'],
+   ja:['ジャカルタへの旅は捜査の終わりではない。','それは遥かに大きなものの始まりだ。','― 第1章へ続く ―']}},
+ B:{title:{id:'ENDING B — BAYANG DI KOTA LAMA',en:'ENDING B — SHADOW IN THE OLD CITY',ja:'エンディングB ― 旧市街の影'},lines:{
+   id:['Kebenaran yang dicari sendirian, akan menuntut bayaran yang sendirian pula.','— Bersambung ke Chapter 1 —'],
+   en:['A truth pursued alone will demand a payment just as alone.','— To be continued in Chapter 1 —'],
+   ja:['一人で追った真実は、一人で払う代償を求める。','― 第1章へ続く ―']}},
+ C:{title:{id:'ENDING RAHASIA — MATA RUBAH',en:'SECRET ENDING — THE FOX\'S EYE',ja:'隠しエンディング ― 狐の目'},lines:{
+   id:['Tujuh bukti terkumpul. Sang Rubah memutuskan kau pantas memainkannya.','Hadiahmu: kebenaran yang lebih dalam... dan bahaya yang lebih dekat.','— Bersambung ke Chapter 1 —'],
+   en:['Seven proofs gathered. The Fox deems you worthy to play.','Your reward: a deeper truth... and a nearer danger.','— To be continued in Chapter 1 —'],
+   ja:['七つの証拠が集まった。狐はあなたに遊ぶ資格ありと認めた。','報酬はより深き真実……そしてより近き危険。','― 第1章へ続く ―']}}
+};
+
+/* ========== SKRIP ========== */
+var SC=[];
+function lab(i){SC.push({t:'label',id:i});} function go(i){SC.push({t:'go',to:i});}
+function bg(k){SC.push({t:'bg',img:k});} function cast(l){SC.push({t:'cast',list:l});}
+function nar(k){SC.push({t:'nar',k:k});} function say(w,k){SC.push({t:'say',w:w,k:k});}
+function chap(k){SC.push({t:'chap',k:k});} function ev(i){SC.push({t:'ev',id:i});}
+function sfx(i){SC.push({t:'sfx',id:i});} function choice(tk,o){SC.push({t:'choice',tk:tk,opts:o});}
+function endN(i){SC.push({t:'end',id:i});}
+
+chap('ch0');bg('room1953');
+nar('p1');nar('p2');nar('p3');sfx('klik');nar('p4');
+say('penjaga','p5');
+choice('ch1',[{k:'ch1o1',fl:{reckless:1},go:'p_int'},{k:'ch1o2',fl:{cautious:1},go:'p_check'}]);
+lab('p_check');nar('p6');ev('pulpen');nar('p7');nar('p8');go('p_int');
+lab('p_int');nar('p9');nar('p10');nar('p11');ev('kertas');say('q','p12');nar('p13');nar('p14');nar('p15');
+chap('ch1t');bg('office');cast([{w:'kirana',p:'l'},{w:'danang',p:'r'}]);
+say('kirana','k1');say('danang','d1');say('kirana','k2');nar('n1');say('danang','d2');nar('n2');
+say('kirana','k3');say('kirana','k4');say('danang','d3');say('kirana','k5');say('danang','d4');
+say('kirana','k6');say('danang','d5');say('kirana','k7');say('danang','d6');say('kirana','k8');
+nar('n3');say('danang','d7');nar('n4');say('kirana','k9');ev('foto_hack');
+choice('ch2',[{k:'o2a',fl:{tegas:1},go:'c1b'},{k:'o2b',fl:{ragu:1},go:'c1a'}]);
+lab('c1a');say('danang','d8');say('kirana','k10');
+lab('c1b');cast([]);nar('n5');
+chap('ch2t');bg('ext');
+nar('g1');nar('g2');say('kirana','k11');
+choice('ch3',[{k:'o3a',fl:{pistol:1},go:'g2x'},{k:'o3b',fl:{senter:1},go:'g2x'}]);
+lab('g2x');sfx('klik');nar('g3');bg('hall');cast([{w:'kirana',p:'c'}]);nar('g4');nar('g5');
+choice('ch4',[{k:'o4a',go:'b_shadow'},{k:'o4b',go:'b_case'}]);
+lab('b_shadow');nar('s1');nar('s2');ev('belati');ev('ukiran');nar('s3');go('b_case2');
+lab('b_case');nar('c1');ev('koper');nar('c2');ev('amplop');nar('c3');go('b_shadow2');
+lab('b_shadow2');nar('s4');ev('ukiran');go('merge');
+lab('b_case2');nar('c4');ev('koper');ev('amplop');
+lab('merge');say('kirana','m1');nar('m2');
+chap('ch3t');bg('hotel');cast([{w:'kirana',p:'l'}]);
+nar('h1');nar('h3b');ev('kaca');nar('h2');nar('h3');
+cast([{w:'kirana',p:'l'},{w:'andhika',p:'r',ghost:1}]);
+say('kirana','k12');nar('h4');
+choice('ch5',[{k:'o5a',fl:{final:'A'},go:'fin'},{k:'o5b',fl:{final:'B'},go:'fin'}]);
+lab('fin');SC.push({t:'route'});
+lab('endA');cast([]);bg('office');nar('eA1');nar('eA2');nar('eA3');endN('A');
+lab('endB');cast([]);bg('interog');nar('eB1');nar('eB2');cast([{w:'andhika',p:'c'}]);say('q','eB3');endN('B');
+lab('endC');cast([]);bg('hotel');nar('eC1');nar('eC2');say('q','p12');say('q','eC3x');endN('C');
+T.eC3x={id:'«Aku tahu kau akan menemukannya. Sampai jumpa di kota lama... Kirana.»',en:'"I knew you would find it. See you in the old city... Kirana."',ja:'「見つけてくれると知っていた。旧市街で会おう……キラナ。」'};
+var LABELS={};SC.forEach(function(n,i){if(n.t==='label')LABELS[n.id]=i;});
+
+/* ========== STATE ========== */
+var LANG='id';
+var S={i:0,ev:[],flags:{},hist:[],chpK:'ch0',choices:0};
+var waiting=false,typing=false,typeTimer=null,autoTimer=null,cardTimer=null,curBg='',curFullTxt='',lastNode=null,lastEnd=null;
+var SET={speed:3,auto:false,music:true,vol:70,lang:'id'};
+try{var rs=localStorage.getItem('weist_set_v2');if(rs)SET=Object.assign(SET,JSON.parse(rs));}catch(e){}
+LANG=SET.lang||'id';
+function saveSet(){try{localStorage.setItem('weist_set_v2',JSON.stringify(SET));}catch(e){}}
+function saveGame(){try{localStorage.setItem('weist_save_v2',JSON.stringify({i:S.i,ev:S.ev,flags:S.flags,hist:S.hist,chpK:S.chpK}));}catch(e){}}
+function hasSave(){try{return !!localStorage.getItem('weist_save_v2');}catch(e){return false;}}
+function getEnds(){try{return JSON.parse(localStorage.getItem('weist_ends_v2')||'[]');}catch(e){return [];}}
+function addEnd(id){var a=getEnds();if(a.indexOf(id)<0){a.push(id);try{localStorage.setItem('weist_ends_v2',JSON.stringify(a));}catch(e){}}}
+function L(o){return (o&&o[LANG])|| (o&&o.id)||'';}
+
+/* ========== AUDIO ========== */
+var ost=$('#ost');ost.volume=SET.vol/100;
+var AC=null;
+function ac(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C();}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f,d,type,g,dl){var c=ac();if(!c)return;var t=c.currentTime+(dl||0);var o=c.createOscillator(),gn=c.createGain();o.type=type||'sine';o.frequency.value=f;gn.gain.setValueAtTime(0.0001,t);gn.gain.linearRampToValueAtTime(g||0.06,t+0.012);gn.gain.exponentialRampToValueAtTime(0.0001,t+d);o.connect(gn);gn.connect(c.destination);o.start(t);o.stop(t+d+0.05);}
+function sfxPlay(id){
+  if(id==='tick')tone(1150,.05,'triangle',.035);
+  else if(id==='select'){tone(520,.09,'square',.05);tone(780,.13,'square',.04,.09);}
+  else if(id==='chime'){tone(660,.14,'sine',.07);tone(990,.22,'sine',.06,.13);}
+  else if(id==='klik'){tone(150,.09,'square',.09);tone(90,.14,'square',.07,.05);}
+  else if(id==='stamp'){tone(95,.2,'square',.11);tone(60,.3,'sine',.09,.05);}
+}
+function musicSync(){$('#btnMusic').classList.toggle('on',SET.music);$('#setMusic').checked=SET.music;if(SET.music){ost.volume=SET.vol/100;ost.play().catch(function(){});}else ost.pause();}
+document.addEventListener('pointerdown',function once(){ac();if(SET.music)ost.play().catch(function(){});document.removeEventListener('pointerdown',once);});
+
+/* ========== VISUAL ========== */
+var bgA=$('#bgA'),bgB=$('#bgB'),bgFront=bgA;
+function setBg(k){var url=BG[k];if(!url||url===curBg)return;curBg=url;var back=(bgFront===bgA)?bgB:bgA;back.src=url;back.classList.add('show');bgFront.classList.remove('show');bgFront=back;}
+function setCast(list){
+  $$('.cslot').forEach(function(sl){sl.innerHTML='';sl.classList.remove('on','dim','active','ghost');sl.dataset.who='';});
+  (list||[]).forEach(function(en){
+    var sl=$('.cslot[data-pos="'+en.p+'"]');if(!sl||!CH[en.w])return;
+    var im=document.createElement('img');im.src=CH[en.w];im.alt=en.w;im.decoding='async';
+    sl.appendChild(im);sl.dataset.who=en.w;sl.classList.add('on');if(en.ghost)sl.classList.add('ghost');
+  });
+}
+function highlight(key){
+  $$('.cslot').forEach(function(sl){
+    sl.classList.remove('dim','active');
+    if(!key)return;
+    if(sl.dataset.who===key)sl.classList.add('active');
+    else if(sl.dataset.who)sl.classList.add('dim');
+  });
+}
+var rc=$('#rainCv'),rx=rc.getContext('2d'),W=0,H=0,drops=[],DN=0;
+var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sizeR(){W=rc.width=window.innerWidth;H=rc.height=window.innerHeight;DN=Math.min(110,Math.floor(W/10));drops=[];for(var i=0;i<DN;i++)drops.push({x:Math.random()*W,y:Math.random()*H,l:10+Math.random()*20,s:6+Math.random()*8,d:1+Math.random()*2});}
+sizeR();window.addEventListener('resize',sizeR);
+function rainLoop(){rx.clearRect(0,0,W,H);rx.lineWidth=1;rx.strokeStyle='rgba(225,150,140,0.4)';rx.beginPath();for(var i=0;i<DN;i++){var o=drops[i];rx.moveTo(o.x,o.y);rx.lineTo(o.x+o.d,o.y+o.l);o.y+=o.s;o.x+=o.d*0.4;if(o.y>H){o.y=-26;o.x=Math.random()*W;}}rx.stroke();window.requestAnimationFrame(rainLoop);}
+if(!reduced)rainLoop();else rc.style.display='none';
+
+/* ========== UI HELPERS ========== */
+var dBox=$('#dialogBox'),dText=$('#dText'),nPlate=$('#namePlate'),nInd=$('#nextInd');
+var LOG=[];
+function pushLog(n,x){LOG.push({n:n,x:x});if(LOG.length>90)LOG.shift();}
+var MSCHAR=[52,40,28,18,9];
+function typeLine(txt){
+  clearInterval(typeTimer);curFullTxt=txt;typing=true;nInd.classList.remove('on');dText.textContent='';
+  if(reduced){dText.textContent=txt;typing=false;nInd.classList.add('on');afterLine(txt);return;}
+  var i=0,sp=MSCHAR[(SET.speed||3)-1]||28;
+  typeTimer=setInterval(function(){
+    i++;dText.textContent=txt.slice(0,i);
+    if(i%3===0)sfxPlay('tick');
+    if(i>=txt.length){clearInterval(typeTimer);typing=false;nInd.classList.add('on');afterLine(txt);}
+  },sp);
+}
+function afterLine(txt){
+  clearTimeout(autoTimer);
+  if(SET.auto)autoTimer=setTimeout(function(){if(waiting&&!$('#choiceBox').classList.contains('on'))advance();},1500+txt.length*24);
+}
+function showChap(node){
+  var c=CHAP[node.k];S.chpK=node.k;renderHudChap();
+  $('#chapT').textContent=L(c.t);$('#chapS').textContent=L(c.s);
+  var cc=$('#chapCard');cc.classList.add('on');sfxPlay('stamp');
+  clearTimeout(cardTimer);
+  cardTimer=setTimeout(function(){cc.classList.remove('on');S.i++;run();},2400);
+  waiting=true;saveGame();
+}
+function renderHudChap(){var c=CHAP[S.chpK];$('#hudChap').textContent=c?(L(c.t)+' — '+L(c.s)):'WEIST';}
+var toastTimer=null;
+function addEv(id,silent){
+  if(!EVID[id]||S.ev.indexOf(id)>=0)return;
+  S.ev.push(id);$('#evBadge').textContent=S.ev.length;renderEvDrawer();
+  if(!silent){
+    $('#toastIc').textContent=EVID[id].ic;$('#toastLb').textContent=L(EVID[id].lb);$('#toastTg').textContent=L(UI.newEv);
+    var t=$('#toast');t.classList.add('on');sfxPlay('chime');
+    clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('on');},3200);
+  }
+  saveGame();
+}
+function renderEvDrawer(){
+  var html='';
+  EVORDER.forEach(function(id){
+    var e=EVID[id],got=S.ev.indexOf(id)>=0;
+    html+='<div class="evItem'+(got?'':' locked')+'"><div class="ic">'+(got?e.ic:'❓')+'</div><div><div class="lb">'+(got?L(e.lb):L(UI.lockedEv))+'</div><div class="ds">'+(got?L(e.ds):L(UI.lockedDs))+'</div></div></div>';
+  });
+  $('#evList').innerHTML=html;
+  $('#caseBox').innerHTML='<b>CASE 872-11-1953</b><br>'+L(UI.caseFile);
+}
+function flagList(){
+  var o=[];
+  if(S.flags.reckless)o.push(LANG==='id'?'Pendobrak':LANG==='en'?'Door-breaker':'突破派');
+  if(S.flags.cautious)o.push(LANG==='id'?'Pengamat Jejak':LANG==='en'?'Trace Observer':'観察派');
+  if(S.flags.tegas)o.push(LANG==='id'?'Tegas':LANG==='en'?'Resolute':'果断');
+  if(S.flags.ragu)o.push(LANG==='id'?'Peragu':LANG==='en'?'Hesitant':'慎重');
+  if(S.flags.pistol)o.push(LANG==='id'?'Bersenjata':LANG==='en'?'Armed':'武装');
+  if(S.flags.senter)o.push(LANG==='id'?'Ber-senter':LANG==='en'?'Flashlight':'ライト');
+  return o;
+}
+function showEnd(node){
+  waiting=false;lastEnd=node;addEnd(node.id);renderTitleEnds();sfxPlay('stamp');
+  renderEnd();
+  $('#endScreen').classList.add('on');
+  dBox.classList.remove('on');$('#hud').classList.remove('on');
+}
+function renderEnd(){
+  var m=ENDMETA[lastEnd.id];
+  $('#endStamp').textContent=L(m.title);
+  $('#endLines').innerHTML=m.lines[LANG].map(function(l){return '<p>'+l+'</p>';}).join('');
+  var st=[L(UI.stEv)+': '+S.ev.length+'/7',L(UI.stCh)+': '+S.choices,L(UI.stTr)+': '+(flagList().join(', ')||'-'),L(UI.stEnd)+': '+lastEnd.id];
+  $('#endStats').innerHTML=st.map(function(s){return '<span>'+s+'</span>';}).join('');
+  $('#endHint').textContent=(lastEnd.id==='C')?L(UI.allFound):(S.ev.length<7?L(UI.secret):'');
+  $('#endRetry').textContent=L(UI.retry);$('#endTitle').textContent=L(UI.toTitle);
+}
+function showChoice(node){
+  waiting=true;saveGame();lastNode=node;
+  var box=$('#choiceBox');box.innerHTML='';
+  var q=document.createElement('div');q.className='qtitle';q.textContent=L(CHTITLE[node.tk]);box.appendChild(q);
+  node.opts.forEach(function(op,idx){
+    var b=document.createElement('button');b.className='cbtn';b.style.animationDelay=(idx*0.12)+'s';b.textContent=L(CHOPT[op.k]);
+    b.addEventListener('click',function(ev2){
+      ev2.stopPropagation();sfxPlay('select');
+      S.choices++;S.hist.push(idx);
+      if(op.fl)Object.assign(S.flags,op.fl);
+      box.classList.remove('on');box.innerHTML='';
+      if(op.go)S.i=LABELS[op.go];else S.i++;
+      run();
+    });
+    box.appendChild(b);
+  });
+  box.classList.add('on');
+}
+
+/* ========== ENGINE ========== */
+function run(){
+  while(true){
+    var n=SC[S.i];
+    if(!n)return;
+    if(n.t==='label'){S.i++;continue;}
+    if(n.t==='go'){S.i=LABELS[n.to];continue;}
+    if(n.t==='bg'){setBg(n.img);S.i++;continue;}
+    if(n.t==='cast'){setCast(n.list);S.i++;continue;}
+    if(n.t==='sfx'){sfxPlay(n.id);S.i++;continue;}
+    if(n.t==='ev'){addEv(n.id,false);S.i++;continue;}
+    if(n.t==='chap'){showChap(n);return;}
+    if(n.t==='route'){S.i=LABELS[(S.ev.length>=7)?'endC':(S.flags.final==='A'?'endA':'endB')];continue;}
+    if(n.t==='nar'||n.t==='say'){
+      waiting=true;saveGame();lastNode=n;
+      dBox.classList.add('on');
+      var txt=L(T[n.k]);
+      if(n.t==='say'){nPlate.style.display='block';nPlate.textContent=L(NAME[n.w]).toUpperCase();dText.classList.remove('nar');highlight(n.w);pushLog(L(NAME[n.w]),txt);}
+      else{nPlate.style.display='none';dText.classList.add('nar');highlight('');pushLog(L(UI.narrator),txt);}
+      typeLine(txt);
+      return;
+    }
+    if(n.t==='choice'){dBox.classList.remove('on');showChoice(n);return;}
+    if(n.t==='end'){showEnd(n);return;}
+    S.i++;
+  }
+}
+function advance(){
+  var cc=$('#chapCard');
+  if(cc.classList.contains('on')){clearTimeout(cardTimer);cc.classList.remove('on');waiting=false;S.i++;run();return;}
+  if($('#choiceBox').classList.contains('on'))return;
+  if(typing){clearInterval(typeTimer);typing=false;dText.textContent=curFullTxt;nInd.classList.add('on');afterLine(curFullTxt);return;}
+  if(!waiting)return;
+  clearTimeout(autoTimer);waiting=false;sfxPlay('tick');S.i++;run();
+}
+$('#game').addEventListener('click',function(ev2){
+  if(ev2.target.closest('button')||ev2.target.closest('#evDrawer')||ev2.target.closest('.modal'))return;
+  if($('#titleScreen').classList.contains('gone'))advance();
+});
+document.addEventListener('keydown',function(ev2){
+  if(ev2.key==='Escape'){$$('.modal.on').forEach(function(m){m.classList.remove('on');});$('#evDrawer').classList.remove('open');return;}
+  if(ev2.key===' '||ev2.key==='Enter'){ev2.preventDefault();if($('#titleScreen').classList.contains('gone'))advance();}
+});
+
+/* ========== SAVE / LOAD ========== */
+function startFresh(){
+  S={i:0,ev:[],flags:{},hist:[],chpK:'ch0',choices:0};LOG=[];
+  $('#evBadge').textContent='0';renderEvDrawer();
+  curBg='';bgA.classList.remove('show');bgB.classList.remove('show');setCast([]);
+  enterGame();run();
+}
+function loadGame(){
+  var sv=null;try{sv=JSON.parse(localStorage.getItem('weist_save_v2'));}catch(e){}
+  if(!sv)return startFresh();
+  S={i:0,ev:sv.ev||[],flags:sv.flags||{},hist:sv.hist||[],chpK:sv.chpK||'ch0',choices:(sv.hist||[]).length};
+  $('#evBadge').textContent=S.ev.length;renderEvDrawer();
+  curBg='';bgA.classList.remove('show');bgB.classList.remove('show');setCast([]);
+  var idx=0,hp=0,guard=0;
+  while(idx<sv.i&&guard<6000){
+    guard++;var n=SC[idx];if(!n)break;
+    if(n.t==='label'){idx++;continue;}
+    if(n.t==='go'){idx=LABELS[n.to];continue;}
+    if(n.t==='bg'){setBg(n.img);idx++;continue;}
+    if(n.t==='cast'){setCast(n.list);idx++;continue;}
+    if(n.t==='ev'){if(S.ev.indexOf(n.id)<0)S.ev.push(n.id);idx++;continue;}
+    if(n.t==='chap'){S.chpK=n.k;idx++;continue;}
+    if(n.t==='sfx'){idx++;continue;}
+    if(n.t==='route'){idx=LABELS[(S.ev.length>=7)?'endC':(S.flags.final==='A'?'endA':'endB')];continue;}
+    if(n.t==='choice'){var op=n.opts[S.hist[hp]||0];hp++;if(op.fl)Object.assign(S.flags,op.fl);idx=op.go?LABELS[op.go]:idx+1;continue;}
+    idx++;
+  }
+  S.i=sv.i;renderHudChap();
+  enterGame();run();
+}
+function enterGame(){
+  $('#titleScreen').classList.add('gone');$('#titleScreen').style.display='none';
+  $('#hud').classList.add('on');$('#endScreen').classList.remove('on');
+  musicSync();
+}
+function toTitle(){
+  $('#titleScreen').classList.remove('gone');$('#titleScreen').style.display='flex';
+  $('#hud').classList.remove('on');dBox.classList.remove('on');$('#endScreen').classList.remove('on');$('#choiceBox').classList.remove('on');$('#chapCard').classList.remove('on');
+  waiting=false;clearTimeout(autoTimer);clearTimeout(cardTimer);
+  $('#tContinue').disabled=!hasSave();renderTitleEnds();
+}
+function renderTitleEnds(){
+  var got=getEnds(),html='';
+  ['A','B','C'].forEach(function(id){
+    var nm=id==='A'?'Ending A':id==='B'?'Ending B':'Ending ?';
+    html+='<i class="'+(got.indexOf(id)>=0?'':'off')+'">'+(got.indexOf(id)>=0?nm:'???')+'</i>';
+  });
+  $('#tEnds').innerHTML=html;
+}
+
+/* ========== BAHASA ========== */
+function applyLang(){
+  document.documentElement.lang=LANG;
+  document.body.classList.toggle('ja',LANG==='ja');
+  $$('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(UI[k])el.textContent=L(UI[k]);});
+  $$('.lbtn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-lang')===LANG);});
+  $('#btnLang').textContent=LANG.toUpperCase();
+  renderHudChap();renderEvDrawer();
+  if(lastEnd&&$('#endScreen').classList.contains('on'))renderEnd();
+  if($('#choiceBox').classList.contains('on')&&lastNode&&lastNode.t==='choice'){var n=lastNode;$('#choiceBox').classList.remove('on');showChoice(n);}
+  if(dBox.classList.contains('on')&&lastNode&&(lastNode.t==='say'||lastNode.t==='nar')){
+    var txt=L(T[lastNode.k]);
+    if(lastNode.t==='say'){nPlate.textContent=L(NAME[lastNode.w]).toUpperCase();pushLog(L(NAME[lastNode.w]),txt);}
+    clearInterval(typeTimer);typing=false;dText.textContent=txt;curFullTxt=txt;nInd.classList.add('on');
+  }
+}
+$$('.lbtn').forEach(function(b){b.addEventListener('click',function(ev2){ev2.stopPropagation();LANG=b.getAttribute('data-lang');SET.lang=LANG;saveSet();applyLang();});});
+$('#btnLang').addEventListener('click',function(){LANG=(LANG==='id')?'en':(LANG==='en')?'ja':'id';SET.lang=LANG;saveSet();applyLang();});
+
+/* ========== HUD & MODAL ========== */
+$('#btnEv').addEventListener('click',function(){$('#evDrawer').classList.toggle('open');});
+$('#evClose').addEventListener('click',function(){$('#evDrawer').classList.remove('open');});
+$('#btnLog').addEventListener('click',function(){
+  $('#logList').innerHTML=LOG.slice().reverse().map(function(l){return '<div class="logItem"><b>'+l.n.toUpperCase()+'</b>'+l.x+'</div>';}).join('')||'<div class="logItem">—</div>';
+  $('#logModal').classList.add('on');
+});
+$('#btnAuto').addEventListener('click',function(){SET.auto=!SET.auto;saveSet();syncSetUI();});
+$('#btnMusic').addEventListener('click',function(){SET.music=!SET.music;saveSet();musicSync();});
+$('#btnSet').addEventListener('click',function(){$('#setModal').classList.add('on');});
+$('#btnMenu').addEventListener('click',function(){$('#menuModal').classList.add('on');});
+$$('.mClose').forEach(function(b){b.addEventListener('click',function(){var m=$('#'+b.getAttribute('data-close'));if(m)m.classList.remove('on');});});
+$$('.modal').forEach(function(m){m.addEventListener('click',function(ev2){if(ev2.target===m)m.classList.remove('on');});});
+$('#mSave').addEventListener('click',function(){saveGame();$('#menuModal').classList.remove('on');$('#toastIc').textContent='💾';$('#toastLb').textContent=L(UI.saved);$('#toastTg').textContent='SAVE';$('#toast').classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(function(){$('#toast').classList.remove('on');},2200);});
+$('#mLoad').addEventListener('click',function(){$('#menuModal').classList.remove('on');loadGame();});
+$('#mSet').addEventListener('click',function(){$('#menuModal').classList.remove('on');$('#setModal').classList.add('on');});
+$('#mTitle').addEventListener('click',function(){$('#menuModal').classList.remove('on');toTitle();});
+$('#tSet').addEventListener('click',function(){$('#setModal').classList.add('on');});
+$('#tCred').addEventListener('click',function(){$('#credModal').classList.add('on');});
+$('#tStart').addEventListener('click',function(){sfxPlay('select');startFresh();});
+$('#tContinue').addEventListener('click',function(){sfxPlay('select');loadGame();});
+$('#endRetry').addEventListener('click',function(){sfxPlay('select');startFresh();});
+$('#endTitle').addEventListener('click',function(){toTitle();});
+function syncSetUI(){
+  $('#setSpeed').value=SET.speed;$('#setAuto').checked=SET.auto;$('#setMusic').checked=SET.music;$('#setVol').value=SET.vol;
+  $('#btnAuto').classList.toggle('on',SET.auto);
+}
+$('#setSpeed').addEventListener('input',function(){SET.speed=parseInt(this.value,10);saveSet();});
+$('#setAuto').addEventListener('change',function(){SET.auto=this.checked;saveSet();syncSetUI();});
+$('#setMusic').addEventListener('change',function(){SET.music=this.checked;saveSet();musicSync();});
+$('#setVol').addEventListener('input',function(){SET.vol=parseInt(this.value,10);ost.volume=SET.vol/100;saveSet();});
+$('#setWipe').addEventListener('click',function(){try{localStorage.removeItem('weist_save_v2');}catch(e){}$('#tContinue').disabled=true;this.textContent='✅';});
+
+/* init */
+syncSetUI();applyLang();renderEvDrawer();renderTitleEnds();
+$('#tContinue').disabled=!hasSave();
+musicSync();
+})();
+</script>
+</body>
+</html>
